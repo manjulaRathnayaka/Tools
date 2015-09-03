@@ -1,0 +1,26 @@
+#!/bin/sh
+# This will make sure puppet changes are configured in testing setups before commiting.
+
+files_with_puppet_changes=$(git diff --cached --name-only | grep -E "puppet-manifests")
+if [ -n "$files_with_puppet_changes" ]; then
+    tput setaf 1
+    echo "[Puppet Changes] File being committed with 'puppet changes' in it:"
+    tput setaf 3
+    echo $files_with_puppet_changes
+    tput setaf 1 
+   
+    exec < /dev/tty
+
+    while true; do
+      read -p "[Puppet Changes] Have you run integration tests and modified the 182 machine to avoid test failures? Have you run tests against 182 machine after modifications? (Y/n) " yn
+      tput sgr0
+
+      if [ "$yn" = "Y" ]; then
+         exit 0
+      else
+         exit 1 
+      fi
+    done
+fi
+
+exit 0
